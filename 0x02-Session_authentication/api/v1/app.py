@@ -12,21 +12,22 @@ import os
 app = Flask(__name__)
 app.register_blueprint(app_views)
 CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
+
 auth = None
-AUTH_TYPE = os.getenv("AUTH_TYPE")
-if AUTH_TYPE == "auth":
+auth_type = getenv("AUTH_TYPE")
+if auth_type == "auth":
     from api.v1.auth.auth import Auth
     auth = Auth()
-elif AUTH_TYPE == "basic_auth":
+elif auth_type == "basic_auth":
     from api.v1.auth.basic_auth import BasicAuth
     auth = BasicAuth()
-elif AUTH_TYPE == "session_auth":
+elif auth_type == "session_auth":
     from api.v1.auth.session_auth import SessionAuth
     auth = SessionAuth()
-elif AUTH_TYPE == "session_exp_auth":
+elif auth_type == "session_exp_auth":
     from api.v1.auth.session_exp_auth import SessionExpAuth
     auth = SessionExpAuth()
-elif AUTH_TYPE == "session_db_auth":
+elif auth_type == "session_db_auth":
     from api.v1.auth.session_db_auth import SessionDBAuth
     auth = SessionDBAuth()
 
@@ -34,7 +35,7 @@ elif AUTH_TYPE == "session_db_auth":
 @app.before_request
 def bef_req():
     """
-    Filter each request before it's handled by the proper route
+    Filtering of each request
     """
     if auth is None:
         pass
@@ -63,14 +64,16 @@ def not_found(error) -> str:
 
 @app.errorhandler(401)
 def unauthorized(error) -> str:
-    """ Request unauthorized handler
+    """
+    Error handler: Unauthorized
     """
     return jsonify({"error": "Unauthorized"}), 401
 
 
 @app.errorhandler(403)
 def forbidden(error) -> str:
-    """ Request unauthorized handler
+    """
+    Error handler: Forbidden
     """
     return jsonify({"error": "Forbidden"}), 403
 
